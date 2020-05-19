@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+
+	<!-- 配置扫描器 -->
+	<context:component-scan
+		base-package="org.lanqiao.dao.impl"></context:component-scan>
+
+	<!-- 配置数据库相关 -事务 -->
+	<bean id="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"
+			value="oracle.jdbc.OracleDriver"></property>
+		<property name="url"
+			value="jdbc:oracle:thin:@127.0.0.1:1521:ORCL"></property>
+		<property name="username" value="scott"></property>
+		<property name="password" value="123456"></property>
+		<property name="maxActive" value="10"></property>	<!-- 最大活动时间 -->
+		<property name="maxIdle" value="6"></property>		<!-- 最大空闲时间 -->
+	</bean>
+
+	<!-- 配置事务管理器 -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+
+	<!-- 增加对事务的支持 -->
+	<tx:annotation-driven
+		transaction-manager="txManager" />
+
+	<!-- 该文件中产生的所有对象，被Spring放入了一个称为Spring IOC容器的地方 -->
+	<!-- id: 唯一标识符 class:指定类型 -->
+	<bean id="student" class="org.lanqiao.entity.Student">		<!-- 此行相当于 Student student = new Student() 直接创建了一个对象 -->
+		<!-- property:该class所代表的类的属性 name:属性名 value:属性值 -->
+		<property name="stuAge" value="24"></property>
+		<property name="stuName" value="zs"></property>
+		<property name="stuNo" value="2"></property>
+	</bean>
+	<bean id="javaCourse" class="org.lanqiao.newInstance.JavaCourse">
+
+	</bean>
+	<bean id="htmlCourse" class="org.lanqiao.newInstance.HtmlCourse">
+
+	</bean>
+	<!-- <bean id="teacher" class="org.lanqiao.entity.Teacher" p:age="25" p:name="ww"> -->
+	<!-- autowire="buName" Course类中有一个ref属性teacher(属性名),并且该ioc容器中恰好有一个bean的id也是teacher 
+		bean的id值=类的属性名,那么我们会自动将该bean注入到这个属性当中去 -->
+	<bean id="teacher" class="org.lanqiao.entity.Teacher"
+		autowire="byName">
+		<property name="name">
+			<!-- <value type="java.lang.String">z<![CDATA[<>asdaczxsad]]></value> -->
+			<!-- <null/> -->
+			<value>zs</value>
+		</property>
+		<!-- -->
+		<!-- <property name="name" value="z&lt;3"> </property> -->
+		<!-- <property name="name"> <value type="java.lang.String">zxs</value> 
+			</property> -->
+		<!-- 依赖注入，底层是通过反射进行实现， 通过反射获取到对象的方法名，然后进行属性的赋值 -->
+		<!-- <property name="name" value="zs"></property> <property name="age" 
+			value="23"></property> -->
+		<!-- <constructor-arg value="24" name="age"></constructor-arg> <constructor-arg 
+			value="ls" name="name"></constructor-arg> -->
+		<!-- <constructor-arg value="24" index="1"></constructor-arg> <constructor-arg 
+			value="ls" index="0"></constructor-arg> -->
+		<!-- <constructor-arg value="ls" type="String" name="name"></constructor-arg> 
+			<constructor-arg value="24" type="int" name="age"></constructor-arg> -->
+	</bean>
+	<bean id="course" class="org.lanqiao.entity.Course"
+		p:courseHour="300" p:courseName="hadoop" p:teacher-ref="teacher">
+		<!-- 通过set进行赋值 -->
+		<!-- xx.setCourseName("java") -->
+		<!-- <property name="courseName" value="java"></property> <property name="courseHour" 
+			value="200"></property> -->
+		<!-- 将teacher对象注入到course对象中 xx.setTeacher(teacher) -->
+		<!-- <property name="teacher" ref="teacher"></property> -->
+		<!-- 通过构造器赋值 -->
+		<!-- <constructor-arg value="c"></constructor-arg> <constructor-arg value="100"></constructor-arg> 
+			<constructor-arg ref="teacher"></constructor-arg> -->
+
+		<!-- value的值默认为一个字符串,当这个字符串没有找到属于自己的类型的时候，就被认为是整型的 -->
+		<!-- <constructor-arg value="100"></constructor-arg> -->
+	</bean>
+
+	<bean id="collectionDemo"
+		class="org.lanqiao.entity.AllCollectionType">
+		<!-- 通过set方式进行赋值 -->
+		<constructor-arg name="list">
+			<list>
+				<value>足球</value>
+				<value>篮球</value>
+				<value>乒乓球</value>
+			</list>
+		</constructor-arg>
+		<!-- <property name="list"> <list> <value>足球</value> <value>篮球</value> 
+			<value>乒乓球</value> </list> </property> <property name="arr"> <array> <value>足球1</value> 
+			<value>篮球1</value> <value>乒乓球1</value> </array> </property> <property name="set"> 
+			<set> <value>hhh</value> <value>hasdh</value> <value>hdfgh</value> <value>hhgfhh</value> 
+			</set> </property> <property name="map"> <map> <entry> <key> <value>foot</value> 
+			</key> <value>足球3</value> </entry> <entry> <key> <value>basket</value> </key> 
+			<value>篮球3</value> </entry> <entry> <key> <value>bad</value> </key> <value>乒乓球3</value> 
+			</entry> </map> </property> <property name="props"> <props> <prop key="foot5">足球5</prop> 
+			<prop key="baks5">篮球5</prop> </props> </property> -->
+	</bean>
+	<!-- 前置通知类 -->
+	<!-- 连接线的一方 -->
+	<bean id="logBefore" class="org.lanqiao.aop.LogBefore">
+
+	</bean>
+	<bean id="studentDao" class="org.lanqiao.dao.impl.StudentDaoImpl">
+
+	</bean>
+	<!-- addStudent()所在方法 -->
+	<bean id="studentServiceImpl"
+		class="org.lanqiao.service.StudentServiceImple">
+		<property name="studentDao" ref="studentDao"></property>
+	</bean>
+	<bean id="logAround" class="org.lanqiao.aop.LogAround">
+
+	</bean>
+
+	<bean id="logAfter" class="org.lanqiao.aop.LogAfter">
+
+	</bean>
+
+	<bean id="logException" class="org.lanqiao.aop.LogException"></bean>
+	<aop:config>
+		<!-- 连接线的另一方 切入点 -->
+		<aop:pointcut
+			expression="execution(public void org.lanqiao.service.StudentServiceImple.deleteStudentByNo(int)) or execution(public void org.lanqiao.service.StudentServiceImple.addStudent(org.lanqiao.entity.Student))"
+			id="pointcut3" />	<!-- 切入点(在那里执行通知) -->
+		<!-- advisor:相当于连接切入点和切面的线 -->
+		<!-- 连接线 -->
+		<aop:advisor advice-ref="logException"
+			pointcut-ref="pointcut3" />
+	</aop:config>
+
+	<!-- 将addStudent()和通知进行关联 -->
+	<aop:config>
+		<!-- 连接线的另一方 切入点 -->
+		<aop:pointcut
+			expression="execution(public void org.lanqiao.service.StudentServiceImple.deleteStudentByNo(int)) or execution(public void org.lanqiao.service.StudentServiceImple.addStudent(org.lanqiao.entity.Student))"
+			id="pointcut" />	<!-- 切入点(在那里执行通知) -->
+		<!-- advisor:相当于连接切入点和切面的线 -->
+		<!-- 连接线 -->
+		<aop:advisor advice-ref="logBefore"
+			pointcut-ref="pointcut" />
+	</aop:config>
+	<aop:config>
+		<!-- 切入点 -->
+		<aop:pointcut
+			expression="execution(public void org.lanqiao.service.StudentServiceImple.deleteStudentByNo(int)) or execution(public void org.lanqiao.service.StudentServiceImple.addStudent(org.lanqiao.entity.Student))"
+			id="pointcut2" />	<!-- 切入点(在那里执行通知) -->
+		<aop:advisor advice-ref="logAfter"
+			pointcut-ref="pointcut2" />
+	</aop:config>
+	<aop:config>
+		<!-- 连接线的另一方 切入点 -->
+		<aop:pointcut
+			expression="execution(public void org.lanqiao.service.StudentServiceImple.deleteStudentByNo(int)) or execution(public void org.lanqiao.service.StudentServiceImple.addStudent(org.lanqiao.entity.Student))"
+			id="pointcut4" />	<!-- 切入点(在那里执行通知) -->
+		<!-- advisor:相当于连接切入点和切面的线 -->
+		<!-- 连接线 -->
+		<aop:advisor advice-ref="logAround"
+			pointcut-ref="pointcut4" />
+	</aop:config>
+	<!-- <bean id="logBeforeAnnotation" class="org.lanqiao.aop.LogBeforeAnnotation"> 
+		</bean> -->
+	<!-- 开启对注解的支持 AOP的自动代理 -->
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+	<!-- 配置一个扫描器 将用注解实现的bean纳入IOC容器中 <context:component-scan base-package="org.lanqiao.aop"></context:component-scan> -->
+	<!-- @Aspect不需要扫描 只需要开启即可 <aop:aspectj-autoproxy></aop:aspectj-autoproxy> -->
+	<context:component-scan
+		base-package="org.lanqiao.aop"></context:component-scan>
+
+<!-- 基于Schema进行通知 -->
+<!-- 将准备转为Schema的类纳入ioc容器 -->
+	<bean class="org.lanqiao.aop.LogSchema" id="logSchema"></bean>
+	
+	
+	<aop:config>
+		<!-- 连接线的另一方 切入点 -->
+		<aop:pointcut
+			expression="execution(public void org.lanqiao.service.StudentServiceImple.deleteStudentByNo(int)) or execution(public void org.lanqiao.service.StudentServiceImple.addStudent(org.lanqiao.entity.Student))"
+			id="PCSchema" />
+			<!-- 方法所在的类 -->
+		<aop:aspect ref="logSchema">
+			<aop:after-returning method="afterReturning" pointcut-ref="PCSchema" returning="returnValue"/>  <!-- 将方法和切入点相关联起来 -->
+			<aop:before method="before" pointcut-ref="PCSchema"/>
+			<aop:after-throwing method="whenException" pointcut-ref="PCSchema" throwing="e"/>
+			<aop:around method="myAround" pointcut-ref="PCSchema"/>
+		</aop:aspect>
+	</aop:config>
+
+</beans>
+<!-- 在头文件的最后加入default-autowire="byName" 通过给所有bean设置一个自动装配 -->  
